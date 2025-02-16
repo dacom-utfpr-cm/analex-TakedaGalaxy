@@ -31,10 +31,11 @@ def test_execute(input_file, args):
 
     output_file.close()
 
+    saida_certa = stdout.decode("utf-8").replace("\r", "");
+
     print("Generated output:")
-    print(stdout)
+    print(saida_certa)
     print("Expected output:")
     print(expected_output)
 
-    assert stdout.decode("utf-8").strip() == expected_output.strip()
-
+    assert saida_certa.strip() == expected_output.strip()

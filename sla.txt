@@ -1,0 +1,110 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.8, pytest-8.3.4, pluggy-1.5.0
+rootdir: C:\Users\umota\Documents\1 - Faculdade\0 - Materias\Teoria Computacional\analex-TakedaGalaxy
+configfile: pytest.ini
+collected 11 items
+
+analex_test.py ......F....                                               [100%]
+
+================================== FAILURES ===================================
+________________________ test_execute[prog-003.cm--k] _________________________
+
+input_file = 'prog-003.cm', args = '-k'
+
+    @pytest.mark.parametrize("input_file, args", test_cases)
+    def test_execute(input_file, args):
+        if(input_file != ''):
+            path_file = 'tests/' + input_file
+        else:
+            path_file = ""
+    
+        cmd = "python analex.py {0} {1}".format(args, path_file)
+        process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    
+        stdout, stderr = process.communicate()
+        stdout, stderr
+    
+        path_file = 'tests/' + input_file
+        output_file = open(path_file + ".lex.out", "r")
+    
+        #read whole file to a string
+        expected_output = output_file.read()
+    
+        output_file.close()
+    
+        saida_certa = stdout.decode("utf-8").replace("\r", "");
+    
+        print("Generated output:")
+        print(saida_certa)
+        print("Expected output:")
+        print(expected_output)
+    
+>       assert saida_certa.strip() == expected_output.strip()
+E       AssertionError: assert 'INT\nID\nSEM...OLON\nRBRACES' == 'INT\nID\nSEM...OLON\nRBRACES'
+E         
+E           INT
+E           ID
+E           SEMICOLON
+E         - FLOAT
+E         + ID
+E           ID...
+E         
+E         ...Full output truncated (20 lines hidden), use '-vv' to show
+
+analex_test.py:41: AssertionError
+---------------------------- Captured stdout call -----------------------------
+Generated output:
+INT
+ID
+SEMICOLON
+ID
+ID
+SEMICOLON
+INT
+ID
+LPAREN
+VOID
+RPAREN
+LBRACES
+INT
+ID
+SEMICOLON
+ID
+ID
+SEMICOLON
+RETURN
+LPAREN
+NUMBER
+RPAREN
+SEMICOLON
+RBRACES
+
+Expected output:
+INT
+ID
+SEMICOLON
+FLOAT
+ID
+SEMICOLON
+INT
+ID
+LPAREN
+VOID
+RPAREN
+LBRACES
+INT
+ID
+SEMICOLON
+FLOAT
+ID
+SEMICOLON
+RETURN
+LPAREN
+NUMBER
+RPAREN
+SEMICOLON
+RBRACES
+
+=========================== short test summary info ===========================
+FAILED analex_test.py::test_execute[prog-003.cm--k] - AssertionError: assert ...
+======================== 1 failed, 10 passed in 1.39s =========================

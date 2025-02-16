@@ -1,18 +1,5 @@
-from automata.fa.Moore import Moore
 import sys, os
 from myerror import MyError
-
-# def expand_range(char_range, state):
-#     """Expande um intervalo de caracteres e mapeia para o estado fornecido."""
-#     transitions = {}
-#     if '-' in char_range and len(char_range) == 3:
-#         start, end = char_range.split('-')
-#         for c in range(ord(start), ord(end) + 1):
-#             transitions[chr(c)] = state
-#     else:
-#         for c in char_range:
-#             transitions[c] = state
-#     return transitions
 
 def expand_range(state, char_range, exclude = []):
     """Expande um intervalo de caracteres e remove os especificados na lista exclude."""
@@ -63,7 +50,7 @@ afd = {
     **expand_range("id", "0-9"),
   },
   "number": {
-    **expand_range("id", "0-9"),
+    **expand_range("number", "0-9"),
   },
   "i" : {
     **expand_range("id", "a-z", ["f", "n"]),
@@ -123,7 +110,7 @@ afd = {
   "f" : {
     **expand_range("id", "a-z", ["f"]),
     **expand_range("id", "0-9"),
-    "f": "fl",
+    "l": "fl",
   },
   "fl": {
     **expand_range("id", "a-z", ["o"]),
@@ -131,6 +118,11 @@ afd = {
     "o":"flo", 
   },
   "flo":{
+    **expand_range("id", "a-z", ["t"]),
+    **expand_range("id", "0-9"),
+    "a":"floa",
+  },
+  "floa":{
     **expand_range("id", "a-z", ["t"]),
     **expand_range("id", "0-9"),
     "t":"float",
@@ -193,30 +185,79 @@ afd = {
     **expand_range("id", "0-9"),
   },
   "+"	: {},
-  "-"	: {},
-  "*"	: {},
-  "/"	: {
-    "/":"comment"
+  "-"	: {
+    **expand_range("number", "0-9"),
   },
-  "comment":{
-    **expand_range("id", "a-z"),
-    **expand_range("id", "0-9"),
-    "+"	: "comment",
-    "-"	: "comment",
-    "*"	: "comment",
-    "/"	: "comment",
-    "<"	: "comment",
-    ">"	: "comment",
-    "("	: "comment",
-    ")"	: "comment",
-    "["	: "comment",
-    "]"	: "comment",
-    "{"	: "comment",
-    "}"	: "comment",
-    "="	: "comment",
-    "!"	: "comment",
-    ";"	: "comment",
-    ","	: "comment",
+  "*"	: {
+  },
+  "/"	: {
+    "/":"comment-//",
+    "*": "comment-/*"
+  },
+  "comment-//":{
+    **expand_range("comment-//", "a-z"),
+    **expand_range("comment-//", "0-9"),
+    "+"	: "comment-//",
+    "-"	: "comment-//",
+    "*"	: "comment-//",
+    "/"	: "comment-//",
+    "<"	: "comment-//",
+    ">"	: "comment-//",
+    "("	: "comment-//",
+    ")"	: "comment-//",
+    "["	: "comment-//",
+    "]"	: "comment-//",
+    "{"	: "comment-//",
+    "}"	: "comment-//",
+    "="	: "comment-//",
+    "!"	: "comment-//",
+    ";"	: "comment-//",
+    ","	: "comment-//",
+    " "	: "comment-//",
+  },
+  "comment-/*":{
+    "*"	: "comment-/*-*",
+    **expand_range("comment-/*", "a-z"),
+    **expand_range("comment-/*", "0-9"),
+    "+"	: "comment-/*",
+    "-"	: "comment-/*",
+    "/"	: "comment-/*",
+    "<"	: "comment-/*",
+    ">"	: "comment-/*",
+    "("	: "comment-/*",
+    ")"	: "comment-/*",
+    "["	: "comment-/*",
+    "]"	: "comment-/*",
+    "{"	: "comment-/*",
+    "}"	: "comment-/*",
+    "="	: "comment-/*",
+    "!"	: "comment-/*",
+    ";"	: "comment-/*",
+    ","	: "comment-/*",
+    " "	: "comment-/*",
+  },
+  "comment-/*-*":{
+    "/"	: "comment-/*-*/",
+    **expand_range("comment-/*", "a-z"),
+    **expand_range("comment-/*", "0-9"),
+    "+"	: "comment-/*",
+    "-"	: "comment-/*",
+    "*"	: "comment-/*",
+    "<"	: "comment-/*",
+    ">"	: "comment-/*",
+    "("	: "comment-/*",
+    ")"	: "comment-/*",
+    "["	: "comment-/*",
+    "]"	: "comment-/*",
+    "{"	: "comment-/*",
+    "}"	: "comment-/*",
+    "="	: "comment-/*",
+    "!"	: "comment-/*",
+    ";"	: "comment-/*",
+    ","	: "comment-/*",
+    " "	: "comment-/*",
+  },
+  "comment-/*-*/":{
   },
   "<"	: {
     "=": "<=",
@@ -242,13 +283,39 @@ afd = {
 
 finals = {
   "id": "ID",
+  "i": "ID",
   "if": "IF",
+  "in": "ID",
   "int": "INT",
+  "e": "ID",
+  "el": "ID",
+  "els": "ID",
   "else":"ELSE",
+  "v": "ID",
+  "vo": "ID",
+  "voi": "ID",
   "void": "VOID",
+  "f": "ID",
+  "fl": "ID",
+  "flo": "ID",
+  "floa": "ID",
   "float": "FLOAT",
+  "w": "ID",
+  "wh": "ID",
+  "whi": "ID",
+  "whil": "ID",
   "while": "WHILE",
+  "r": "ID",
+  "re": "ID",
+  "ret": "ID",
+  "retu": "ID",
+  "retur": "ID",
   "return": "RETURN",
+  "n": "ID",
+  "nu": "ID",
+  "num": "ID",
+  "numb": "ID",
+  "numbe": "ID",
   "number": "NUMBER",
   "+": "PLUS",
   "+": "PLUS",
@@ -270,10 +337,9 @@ finals = {
   "="	: "ATTRIBUTION",
   ";"	: "SEMICOLON",
   ","	: "COMMA",
-  "comment": "COMMENT"
 }
 
-lexema = ""
+
 
 error_handler = MyError('LexerErrors')
 
@@ -303,26 +369,30 @@ def main():
 
     if not check_cm:
         print("Definição da Máquina")
-        #print(moore)
+        print("Estados", afd)
+        print("Estados finais e tokes", finals)
         print("Entrada:")
         print(source_file)
-        print("Lista de Tokens:")
       
-      #print(moore.get_output_from_string(source_file))
-    #escrever o codigo de verificação aki
     state = "q0"
+    lexema = ""
     i = 0
+
+    tokens_to_print = []
     while i < len(source_file):
       try:
+        #print(state, source_file[i])
         state = afd[state][source_file[i]]
-        #lexema = lexema + source_file[i]
+        lexema = lexema + source_file[i]
         i = i + 1
       except:
         if state in finals:
-          print(finals[state])
-        
+          tokens_to_print.append(finals[state].strip())
+          lexema = ''
         state = "q0"
-
+    
+    tokens_limpos = [token.replace("\t", "").strip() for token in tokens_to_print]
+    print("\n".join(tokens_limpos))
 
 if __name__ == "__main__":
     try:
