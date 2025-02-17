@@ -10,4 +10,3 @@ void main(void){
   y = input();
   output(gcd(x,y));
 }
-

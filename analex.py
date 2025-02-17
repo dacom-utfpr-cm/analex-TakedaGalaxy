@@ -1,84 +1,84 @@
-# from automata.fa.Moore import Moore
 import sys, os
-
 from myerror import MyError
+from afd_def import AFD,AFD_FINALS
 
 error_handler = MyError('LexerErrors')
 
-global check_cm
-global check_key
+# Processa a entrada do programa e retorna o conteudo do arquivo que contem o código
+def process_input():
+  check_cm = False
+  check_key = False
+  
+  for idx, arg in enumerate(sys.argv):
+    aux = arg.split('.')
+    if aux[-1] == 'cm':
+      check_cm = True
+      idx_cm = idx
 
-# moore = Moore(['q0', 'q1', 'q2', 'q3', 'q4'],
-#               ['i' , 'n' , 't', ' '],
-#               ['INT', 'ELSE'],
-#               {
-#                   'q0' : {
-#                       'i' : 'q1',
-#                   },
-#                   'q1': {
-#                       'n': 'q2',
-#                   },
-#                   'q2': {
-#                       't': 'q3',
+    if(arg == "-k"):
+      check_key = True
 
-#                   },
-#                   'q3': {
-#                       '\n': 'q4',
-#                   }
-#               },
+  if(not check_key and len(sys.argv) < 2):
+    raise TypeError(error_handler.newError(check_key, 'ERR-LEX-USE'))
 
-#               'q0',
-#               {
-#                   'q0' : '',
-#                   'q1' : '',
-#                   'q2' : '',
-#                   'q3' : '',
-#                   'q4' : 'INT'
-#               }
-#               )
+  if(check_key and len(sys.argv) <= 2):
+    raise TypeError(error_handler.newError(check_key, 'ERR-LEX-USE'))
 
-def main():
-    check_cm = False
-    check_key = False
+  if not check_cm:
+    raise IOError(error_handler.newError(check_key, 'ERR-LEX-NOT-CM'))
+  
+  if not os.path.exists(sys.argv[idx_cm]):
+    raise IOError(error_handler.newError(check_key, 'ERR-LEX-FILE-NOT-EXISTS'))
     
-    for idx, arg in enumerate(sys.argv):
-        # print("Argument #{} is {}".format(idx, arg))
-        aux = arg.split('.')
-        if aux[-1] == 'cm':
-            check_cm = True
-            idx_cm = idx
+  data = open(sys.argv[idx_cm])
 
-        if(arg == "-k"):
-            check_key = True
-    
-    # print ("No. of arguments passed is ", len(sys.argv))
+  return (data.read(), not check_key)
 
-    if(len(sys.argv) < 3):
-        raise TypeError(error_handler.newError(check_key, 'ERR-LEX-USE'))
+# Imprime a definição do afd
+def print_afd(input:str):
+  print("Definição da Máquina:")
+  print("\nafd =", AFD)
+  print("\nAFD_finals =", AFD_FINALS)
+  print("\nEntrada =", input)
 
-    if not check_cm:
-      raise IOError(error_handler.newError(check_key, 'ERR-LEX-NOT-CM'))
-    elif not os.path.exists(sys.argv[idx_cm]):
-        raise IOError(error_handler.newError(check_key, 'ERR-LEX-FILE-NOT-EXISTS'))
-    else:
-        data = open(sys.argv[idx_cm])
-        source_file = data.read()
+# Processa a entrada do código gerando a lista de tokens
+def generate_tokens(input: str):
+  token_list = []
+  state = "q0"
+  
+  stall = False 
 
-        if not check_cm:
-            print("Definição da Máquina")
-            print(moore)
-            print("Entrada:")
-            print(source_file)
-            print("Lista de Tokens:")
-        
-        #print(moore.get_output_from_string(source_file))
+  i = 0
+  while i < len(input):
+    try:
+      state = AFD[state][input[i]]
+      stall = False
+      i = i + 1
+    except:
+      if state in AFD_FINALS:
+        token_list.append(AFD_FINALS[state].strip())
+
+      if stall:
+        raise IOError(error_handler.newError(True, 'ERR-LEX-INV-CHAR'))
+
+      state = "q0"
+      stall = True
+
+  return token_list
 
 
 if __name__ == "__main__":
+  try:
+    (file_text, do_print) = process_input();
 
-    try:
-        main()
-    except Exception as e:
-        print(e)
-    except (ValueError, TypeError):
-        print(e)
+    if do_print:
+      print_afd(file_text)
+
+    tokens = generate_tokens(file_text);
+
+    print("\n".join(tokens))
+
+  except (ValueError, TypeError) as e:  # Exceções específicas primeiro
+    print(e)
+  except Exception as e:  # Exceção genérica depois
+    print(e)
